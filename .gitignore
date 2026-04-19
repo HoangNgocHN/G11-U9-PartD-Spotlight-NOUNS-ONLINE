@@ -1,0 +1,14 @@
+*.md
+FIREBASE-SETUP.md
+USAGE_NOTES.md
+FIXES_LOG.md
+NOTES.md
+NOTE-*.md
+DOCUMENTATION.md
+README.md
+TECH_STACK.md
+CHANGELOG*.md
+FIXES_LOG_*.html
+.vscode/
+.claude/
+.idea/

@@ -1,0 +1,1009 @@
+/**
+ * STYLES.CSS - Sentence Spotlight Game
+ * ======================================
+ * Theme: Dark-warm (phòng tối + đèn spotlight)
+ *
+ * Bảng màu:
+ *   - Nền chính:    #2A2520 (dark brown)
+ *   - Card/surface: #3D3530 (warm dark)
+ *   - Text chính:   #F5F0E8 (cream)
+ *   - Từ vựng:      #FFD07B (warm gold)
+ *   - Spotlight:     rgba(255,200,100,0.15) (glow vàng nhẹ)
+ *   - Correct:      #66BB6A (green)
+ *   - Wrong:        #EF5350 (red)
+ */
+
+/* ── RESET & BASE ── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #2A2520;
+  color: #F5F0E8;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── SHARED BUTTON ── */
+.btn {
+  background: #FFD07B;
+  color: #2A2520;
+  border: none;
+  padding: 1rem 2.5rem;
+  font-size: 1.15rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 700;
+  font-family: inherit;
+}
+.btn:hover {
+  background: #FFE0A0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(255,208,123,0.3);
+}
+.btn:active { transform: translateY(0); }
+
+/* ══════════════════════════════════
+   START SCREEN
+   ══════════════════════════════════ */
+#start-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 2rem;
+}
+#start-screen h1 {
+  font-size: 2.8rem;
+  color: #FFD07B;
+  margin-bottom: 0.3rem;
+  text-shadow: 0 0 30px rgba(255,208,123,0.3);
+}
+#start-screen .subtitle {
+  font-size: 1.1rem;
+  color: #A09888;
+  margin-bottom: 2rem;
+}
+
+/* Spotlight icon animation */
+.spotlight-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+@keyframes glow-pulse {
+  0%, 100% { filter: brightness(1); text-shadow: 0 0 10px rgba(255,208,123,0.3); }
+  50%      { filter: brightness(1.3); text-shadow: 0 0 30px rgba(255,208,123,0.6); }
+}
+
+.start-info {
+  background: #3D3530;
+  border-radius: 16px;
+  padding: 1.8rem 2.2rem;
+  max-width: 480px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+  text-align: left;
+}
+.start-info h3 {
+  color: #FFD07B;
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+}
+.start-info ul { list-style: none; padding: 0; }
+.start-info li {
+  padding: 0.4rem 0;
+  font-size: 0.95rem;
+  color: #C8BFB2;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.start-info li::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #FFD07B;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════
+   GAME SCREEN
+   ══════════════════════════════════ */
+#game-screen {
+  display: none;
+  min-height: calc(100vh - 80px);
+  padding: 1.5rem 2rem 2rem;
+}
+.game-container {
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+/* Progress bar */
+.progress-bar-wrap {
+  margin-bottom: 1.5rem;
+}
+.progress-text {
+  font-size: 0.85rem;
+  color: #A09888;
+  margin-bottom: 0.4rem;
+  display: flex;
+  justify-content: center; /* centered vì chỉ còn "Question N" */
+  gap: 1rem;
+}
+#mistakes-label:empty { display: none; } /* ẩn khi rỗng */
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: #4A4038;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FFD07B, #FFAA33);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* ── WORD DISPLAY (top area) ── */
+.word-display {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  animation: fadeIn 0.4s ease;
+}
+.word-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #A09888;
+  margin-bottom: 0.5rem;
+}
+.word-text {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #FFD07B;
+  text-shadow: 0 0 25px rgba(255,208,123,0.25);
+  margin-bottom: 0.5rem;
+}
+.word-def {
+  font-size: 1rem;
+  color: #C8BFB2;
+  font-style: italic;
+}
+
+.prompt-text {
+  text-align: center;
+  font-size: 1rem;
+  color: #A09888;
+  margin-bottom: 1.2rem;
+}
+.prompt-highlight {
+  color: #FFD07B;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: rgba(255,208,123,0.4);
+  text-underline-offset: 3px;
+}
+
+/* ── SENTENCE OPTIONS (spotlight cards) ── */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.option-card {
+  width: 100%;
+  text-align: left;
+  padding: 1.1rem 1.4rem;
+  border: 2px solid #4A4038;
+  border-radius: 14px;
+  background: #352F2A;
+  font-size: 1rem;
+  color: #9A9080;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  font-family: inherit;
+  position: relative;
+  overflow: visible;
+  z-index: 1;
+}
+
+/* ── SPOTLIGHT BEAM (cone of light from above) ── */
+.option-card::before {
+  content: '';
+  position: absolute;
+  /* Hình thang: đáy nhỏ ở trên (nguồn sáng), đáy lớn ở dưới (chiếu xuống card) */
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;           /* Đáy nhỏ ở trên (nguồn đèn) */
+  height: 80px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255,210,100,0.7) 0%,
+    rgba(255,210,100,0.25) 40%,
+    rgba(255,210,100,0.05) 100%
+  );
+  clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── SPOTLIGHT GLOW on card surface ── */
+.option-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 14px;
+  background: radial-gradient(
+    ellipse 70% 100% at 50% 0%,
+    rgba(255,210,100,0.20) 0%,
+    rgba(255,210,100,0.08) 40%,
+    transparent 80%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+/* Hover (desktop) OR touch-lit (mobile/tablet): show beam + glow
+   - Desktop: trigger by hovering mouse
+   - Touch: JS adds .touch-lit class on touchstart, removes when card disabled
+   - :focus-visible: keyboard navigation (Tab key)  */
+.option-card:hover:not(.disabled)::before,
+.option-card.touch-lit:not(.disabled)::before,
+.option-card:focus-visible:not(.disabled)::before { opacity: 1; }
+
+.option-card:hover:not(.disabled)::after,
+.option-card.touch-lit:not(.disabled)::after,
+.option-card:focus-visible:not(.disabled)::after  { opacity: 1; }
+
+.option-card:hover:not(.disabled),
+.option-card.touch-lit:not(.disabled),
+.option-card:focus-visible:not(.disabled) {
+  border-color: #FFD07B;
+  color: #F5F0E8;
+  background: #3D3530;
+  box-shadow:
+    0 0 30px rgba(255,210,100,0.15),
+    0 -5px 25px rgba(255,210,100,0.08),
+    inset 0 1px 15px rgba(255,210,100,0.06);
+  transform: scale(1.015);
+  z-index: 10;
+  outline: none;
+}
+
+/* On touch devices without hover support, also show a subtle always-on
+   spotlight as ambient theme cue (so the "room lighting" feel isn't lost) */
+@media (hover: none) and (pointer: coarse) {
+  .option-card:not(.disabled)::before { opacity: 0.35; }
+  .option-card:not(.disabled)::after  { opacity: 0.35; }
+}
+
+/* ── ANSWER STATES ──
+   NEUTRAL design: student KHÔNG biết đúng/sai ngay khi click.
+   Chỉ card được chọn sáng lên màu GOLD (theme color) để HS xác nhận lựa chọn.
+   Teacher sẽ giải thích bằng lời, rồi bấm Next.
+
+   .selected = card được HS chọn (gold, nổi bật, không tiết lộ correctness)
+   .disabled (không selected) = các card còn lại, mờ đi */
+
+/* Picked card — neutral GOLD highlight (theme color, không tiết lộ đúng/sai) */
+.option-card.selected {
+  border-color: #FFD07B;
+  border-width: 3px;
+  background: rgba(255,208,123,0.22);
+  color: #FFF3DC;
+  font-weight: 700;
+  box-shadow:
+    0 0 0 3px rgba(255,208,123,0.25),
+    0 0 40px rgba(255,208,123,0.5),
+    0 6px 20px rgba(0,0,0,0.25);
+  transform: scale(1.03);
+  opacity: 1 !important;
+  z-index: 10;
+  animation: selectedPulse 0.5s ease;
+}
+@keyframes selectedPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.06); }
+  100% { transform: scale(1.03); }
+}
+
+/* Disabled (non-selected) cards → mờ hẳn để card selected nổi bật */
+.option-card.disabled {
+  cursor: default;
+  opacity: 0.3;
+}
+.option-card.disabled:hover { transform: none; box-shadow: none; }
+.option-card.disabled::before,
+.option-card.disabled::after { opacity: 0 !important; }
+
+/* Legacy classes .correct / .wrong / .show-correct KHÔNG dùng nữa trong
+   classroom edition. game.js không còn add các class này. Nếu sau này cần
+   bật lại hiển thị feedback đúng/sai → chỉ cần thêm style tương ứng ở đây. */
+
+/* ── FEEDBACK ── */
+.feedback {
+  margin-top: 1.5rem;
+  padding: 1.2rem;
+  border-radius: 14px;
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.feedback.show { display: block; }
+
+.feedback.correct-fb {
+  background: rgba(102,187,106,0.1);
+  border: 1px solid rgba(102,187,106,0.3);
+}
+.feedback.wrong-fb {
+  background: rgba(255,167,38,0.1);
+  border: 1px solid rgba(255,167,38,0.3);
+}
+.feedback .fb-title {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+.feedback.correct-fb .fb-title { color: #A5D6A7; }
+.feedback.wrong-fb .fb-title   { color: #FFB74D; }
+
+.feedback .fb-definition {
+  font-size: 0.95rem;
+  color: #C8BFB2;
+  line-height: 1.5;
+  padding: 0.6rem 0.8rem;
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  margin-top: 0.4rem;
+}
+.feedback .fb-definition strong { color: #FFD07B; }
+
+.feedback .fb-retry {
+  font-size: 0.85rem;
+  color: #FF8A65;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* ── NEXT BUTTON ── */
+.next-btn {
+  margin-top: 1.2rem;
+  padding: 0.8rem 2rem;
+  background: #FFD07B;
+  color: #2A2520;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-family: inherit;
+  display: none;
+  transition: all 0.2s;
+}
+.next-btn.show { display: inline-block; }
+.next-btn:hover { background: #FFE0A0; }
+
+/* ══════════════════════════════════
+   WIN SCREEN
+   ══════════════════════════════════ */
+#win-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 2rem;
+}
+.win-card {
+  background: #3D3530;
+  border-radius: 24px;
+  padding: 3rem;
+  max-width: 500px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  animation: fadeIn 0.6s ease;
+}
+.win-card .trophy {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+.win-card h2 {
+  font-size: 2rem;
+  color: #FFD07B;
+  margin-bottom: 0.5rem;
+}
+.win-card .win-sub {
+  color: #A09888;
+  font-size: 1.05rem;
+  margin-bottom: 1.5rem;
+}
+.win-stats {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+.win-stat { text-align: center; }
+.win-stat .stat-num {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #FFD07B;
+}
+.win-stat .stat-label {
+  font-size: 0.8rem;
+  color: #A09888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Retry summary */
+.retry-summary {
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+.retry-summary h4 {
+  font-size: 0.85rem;
+  color: #A09888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.6rem;
+}
+.retry-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  color: #C8BFB2;
+  border-bottom: 1px solid #4A4038;
+}
+.retry-item .retry-word { color: #FFD07B; font-weight: 600; }
+.retry-item .retry-count { color: #FF8A65; }
+
+/* ══════════════════════════════════
+   ANIMATIONS
+   ══════════════════════════════════ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════
+   CLASSROOM EDITION — ADDITIONS
+   ══════════════════════════════════ */
+
+.hidden { display: none !important; }
+
+/* ── STUDENT HEADER ── */
+.page-header {
+  background: linear-gradient(90deg, #3D3530 0%, #2A2520 100%);
+  padding: 0.9rem 2rem;
+  border-bottom: 1px solid rgba(255,208,123,0.15);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+.page-header h1 {
+  font-size: 1.3rem;
+  color: #FFD07B;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.page-header .header-icon { font-size: 1.4rem; }
+.page-header .subtitle {
+  font-size: 0.85rem;
+  color: #A09888;
+  margin: 0.15rem 0 0;
+}
+.page-header strong { color: #FFD07B; font-family: 'Courier New', monospace; letter-spacing: 2px; }
+
+.status-online  { color: #6BCB77; font-weight: 600; }
+.status-offline { color: #A09888; }
+
+/* ── WAITING SCREEN (student, before start) ── */
+.waiting-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+  text-align: center;
+  padding: 2rem;
+}
+.waiting-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+.waiting-screen h2 {
+  color: #FFD07B;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+.waiting-screen p {
+  color: #C8BFB2;
+  font-size: 1rem;
+  margin: 0.3rem 0;
+}
+.waiting-screen .waiting-hint {
+  color: #A09888;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  font-style: italic;
+}
+
+/* ── WAITING BANNER (after student answers) ── */
+.waiting-banner {
+  margin-top: 1rem;
+  padding: 0.9rem 1.3rem;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+.waiting-banner .waiting-sub {
+  font-weight: 500;
+  font-size: 0.9rem;
+  opacity: 0.85;
+  margin-left: 0.4rem;
+}
+.waiting-banner.waiting-ok {
+  background: rgba(102,187,106,0.15);
+  border: 1px solid rgba(102,187,106,0.4);
+  color: #A5D6A7;
+}
+.waiting-banner.waiting-retry {
+  background: rgba(255,167,38,0.15);
+  border: 1px solid rgba(255,167,38,0.4);
+  color: #FFB74D;
+}
+/* NEUTRAL — không tiết lộ đúng/sai, chỉ báo "đã nộp, chờ GV" */
+.waiting-banner.waiting-neutral {
+  background: rgba(255,208,123,0.12);
+  border: 1px solid rgba(255,208,123,0.35);
+  color: #FFD07B;
+}
+.waiting-banner.waiting-neutral .waiting-sub { color: #C8BFB2; }
+
+/* ── TEACHER NOTES PANEL (on student screen) ── */
+#teacher-notes-panel {
+  margin-top: 1.8rem;
+  background: linear-gradient(135deg, #3D3530 0%, #322B26 100%);
+  border: 1px solid rgba(255,208,123,0.2);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+.notes-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1.2rem;
+  background: rgba(255,208,123,0.08);
+  border-bottom: 1px solid rgba(255,208,123,0.15);
+}
+.notes-icon { font-size: 1.3rem; }
+.notes-title-block { flex: 1; display: flex; flex-direction: column; line-height: 1.2; }
+.notes-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #FFD07B;
+  letter-spacing: 1px;
+}
+.notes-subtitle {
+  font-size: 0.75rem;
+  color: #A09888;
+}
+.notes-wave { display: flex; gap: 4px; }
+.wave-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #FFD07B; opacity: 0.4;
+  animation: wave 1.4s ease-in-out infinite;
+}
+.wave-dot:nth-child(2) { animation-delay: 0.2s; }
+.wave-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes wave {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%      { opacity: 1;   transform: scale(1.2); }
+}
+
+#notes-body {
+  padding: 1.2rem;
+  min-height: 80px;
+}
+#notes-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #A09888;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+.notes-empty-icon { font-size: 1.3rem; }
+
+/* Teacher's note text → coral peach (#FFAB91) — phân biệt với gold (#FFD07B
+   của target word) nhưng cùng tone ấm của theme dark-warm. Tạo cảm giác như
+   "ghi chú viết tay, thân thiện" so với "spotlight chiếu vào target". */
+#notes-current {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #FFAB91;
+  text-align: center;
+  padding: 0.6rem 1rem;
+  background: rgba(255,171,145,0.10);
+  border: 1px dashed rgba(255,171,145,0.35);
+  border-radius: 12px;
+  text-shadow: 0 0 20px rgba(255,171,145,0.4);
+  animation: noteIn 0.4s ease;
+  letter-spacing: 0.3px;
+}
+@keyframes noteIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+#notes-recent {
+  margin-top: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.notes-recent-chip {
+  padding: 0.35rem 0.8rem;
+  background: rgba(255,171,145,0.06);
+  border: 1px solid rgba(255,171,145,0.3);
+  border-radius: 100px;
+  font-size: 0.85rem;
+  color: #E8B4A0;
+}
+
+/* ══════════════════════════════════
+   TEACHER VIEW
+   ══════════════════════════════════ */
+#teacher-view {
+  min-height: 100vh;
+  padding-bottom: 2rem;
+}
+
+.teacher-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: linear-gradient(90deg, #3D3530 0%, #2A2520 100%);
+  border-bottom: 1px solid rgba(255,208,123,0.15);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+.teacher-header h1 {
+  font-size: 1.4rem;
+  color: #FFD07B;
+  margin: 0;
+}
+.teacher-sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: #A09888;
+}
+.teacher-sub strong { color: #FFD07B; font-family: 'Courier New', monospace; letter-spacing: 2px; }
+
+.connection-state .status-online,
+.connection-state .status-offline {
+  padding: 0.4rem 0.9rem;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.teacher-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+.tcol { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.t-card {
+  background: #3D3530;
+  border-radius: 16px;
+  padding: 1.3rem 1.5rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,208,123,0.08);
+}
+.t-card-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #FFD07B;
+  letter-spacing: 1.5px;
+  display: block;
+  margin-bottom: 0.8rem;
+}
+.t-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+.t-card-header #t-progress {
+  font-size: 0.9rem;
+  color: #C8BFB2;
+  font-weight: 600;
+}
+.t-progress-sub { color: #A09888; font-weight: 400; font-size: 0.8rem; }
+.t-retry-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(255,167,38,0.2);
+  color: #FFB74D;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.t-card-desc {
+  font-size: 0.85rem;
+  color: #A09888;
+  margin: -0.3rem 0 0.8rem;
+}
+
+/* ── CURRENT QUESTION REVEAL ── */
+.t-answer-reveal {
+  background: rgba(255,208,123,0.08);
+  border: 1px solid rgba(255,208,123,0.25);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+.t-reveal-label {
+  font-size: 0.7rem;
+  color: #A09888;
+  letter-spacing: 2px;
+  margin-bottom: 0.3rem;
+}
+.t-correct-word {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #FFD07B;
+  margin-bottom: 0.3rem;
+  text-shadow: 0 0 20px rgba(255,208,123,0.3);
+}
+.t-correct-def {
+  font-size: 0.95rem;
+  color: #C8BFB2;
+  line-height: 1.5;
+}
+.t-def-line em { color: #C8BFB2; font-style: italic; }
+.t-answer-line {
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed rgba(255,208,123,0.2);
+  color: #A5D6A7;
+  font-size: 0.95rem;
+}
+.t-answer-line strong { color: #A5D6A7; }
+
+.t-student-state {
+  padding: 0.8rem 1rem;
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+}
+.t-state-label {
+  font-size: 0.7rem;
+  color: #A09888;
+  letter-spacing: 2px;
+  margin-bottom: 0.3rem;
+}
+.t-student-answer {
+  font-size: 1rem;
+  color: #F5F0E8;
+  font-weight: 500;
+}
+
+/* ── BIG CONTROL BUTTONS ── */
+.t-controls-card { text-align: center; }
+
+.t-big-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 1.3rem;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 0.7rem;
+  transition: all 0.2s;
+  text-align: left;
+}
+.t-big-btn:last-child { margin-bottom: 0; }
+.t-big-btn .btn-icon { font-size: 1.8rem; flex-shrink: 0; }
+.t-big-btn .btn-text {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.t-big-btn .btn-sub {
+  display: block;
+  font-size: 0.78rem;
+  opacity: 0.75;
+  font-weight: 400;
+}
+.t-big-btn .btn-text + .btn-sub { margin-top: 2px; }
+
+.t-big-btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+.t-big-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.t-btn-primary { background: #FFD07B; color: #2A2520; }
+.t-btn-primary:not(:disabled):hover { background: #FFE0A0; }
+.t-btn-success { background: #6BCB77; color: #1a3d20; }
+.t-btn-success:not(:disabled):hover { background: #8BDB97; }
+
+/* ── ANNOTATION ── */
+.t-annotation-input {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+.t-annotation-input input {
+  flex: 1;
+  padding: 0.7rem 0.9rem;
+  font-size: 1rem;
+  border: 1px solid rgba(255,208,123,0.25);
+  background: rgba(0,0,0,0.25);
+  color: #F5F0E8;
+  border-radius: 10px;
+  font-family: inherit;
+}
+.t-annotation-input input:focus { outline: none; border-color: #FFD07B; }
+
+.t-btn-secondary {
+  padding: 0.7rem 1.2rem;
+  background: #FFD07B;
+  color: #2A2520;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.t-btn-secondary:hover { background: #FFE0A0; }
+
+.t-annotation-quick {
+  margin-bottom: 1rem;
+}
+.t-quick-label {
+  font-size: 0.7rem;
+  color: #A09888;
+  letter-spacing: 1.5px;
+  margin-bottom: 0.5rem;
+}
+#t-anno-quick-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.t-quick-btn {
+  padding: 0.4rem 0.8rem;
+  background: rgba(255,208,123,0.08);
+  border: 1px solid rgba(255,208,123,0.25);
+  color: #FFD07B;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.t-quick-btn:hover {
+  background: rgba(255,208,123,0.2);
+  transform: translateY(-1px);
+}
+
+.t-annotation-list { margin-top: 0.8rem; }
+.t-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.t-list-header span {
+  font-size: 0.7rem;
+  color: #A09888;
+  letter-spacing: 1.5px;
+}
+.t-btn-small {
+  padding: 0.25rem 0.7rem;
+  font-size: 0.75rem;
+  background: transparent;
+  border: 1px solid rgba(239,83,80,0.4);
+  color: #EF9A9A;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.t-btn-small:hover { background: rgba(239,83,80,0.12); }
+
+#t-anno-history {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 140px;
+  overflow-y: auto;
+}
+#t-anno-history li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.88rem;
+  color: #C8BFB2;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+#t-anno-history li.empty {
+  color: #A09888;
+  font-style: italic;
+  justify-content: center;
+}
+.anno-time { color: #A09888; font-size: 0.75rem; }
+
+/* ── STATS ── */
+.t-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+}
+.t-stat {
+  text-align: center;
+  padding: 0.9rem 0.5rem;
+  background: rgba(0,0,0,0.25);
+  border-radius: 10px;
+}
+.t-stat-val {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #FFD07B;
+}
+.t-stat-label {
+  font-size: 0.72rem;
+  color: #A09888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+/* ══════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════ */
+@media (max-width: 900px) {
+  .teacher-main { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  #game-screen { padding: 1rem; }
+  .page-header { padding: 0.7rem 1rem; }
+  .teacher-header { padding: 0.8rem 1rem; flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .teacher-main { padding: 1rem; }
+  .word-text { font-size: 1.6rem; }
+  .option-card { padding: 0.9rem 1rem; font-size: 0.95rem; }
+  .win-card { padding: 2rem 1.5rem; }
+  .t-correct-word { font-size: 1.4rem; }
+  #notes-current { font-size: 1.4rem; }
+}

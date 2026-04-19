@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentence Spotlight — Online Classroom</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Room code UI styles -->
+  <style>
+    #room-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse at top, #3D3530 0%, #1a1510 80%);
+      font-family: 'Segoe UI', system-ui, sans-serif; color: #F5F0E8;
+    }
+    #room-screen .room-box {
+      background: rgba(255,208,123,0.06);
+      backdrop-filter: blur(10px);
+      padding: 40px 48px; border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      text-align: center; max-width: 520px;
+      border: 1px solid rgba(255,208,123,.25);
+    }
+    #room-screen h2 { margin: 0 0 8px; font-size: 1.6rem; color:#FFD07B; }
+    #room-screen .sub { margin: 0 0 24px; opacity: .85; font-size: .95rem; }
+    #room-screen .code-display {
+      font-family: 'Courier New', monospace; font-size: 2.8rem;
+      font-weight: bold; letter-spacing: 8px; color: #FFD07B;
+      padding: 16px; margin: 12px 0;
+      background: rgba(0,0,0,.3); border-radius: 12px;
+      border: 2px dashed rgba(255,208,123,.4);
+    }
+    #room-screen input {
+      font-family: 'Courier New', monospace; font-size: 2rem;
+      text-align: center; letter-spacing: 6px;
+      padding: 14px; width: 100%; box-sizing: border-box;
+      border: 2px solid rgba(255,208,123,.2); border-radius: 12px;
+      background: rgba(0,0,0,.3); color: #FFD07B;
+      margin: 12px 0; text-transform: uppercase;
+    }
+    #room-screen input:focus { outline: none; border-color: #FFD07B; }
+    #room-screen button {
+      padding: 14px 32px; font-size: 1rem; font-weight: 700;
+      border: none; border-radius: 10px; cursor: pointer;
+      background: #FFD07B; color: #2A2520;
+      margin: 8px 4px; transition: transform .15s;
+      font-family: inherit;
+    }
+    #room-screen button:hover { transform: translateY(-2px); }
+    #room-screen button.ghost {
+      background: transparent; color: #F5F0E8;
+      border: 1px solid rgba(255,255,255,.3);
+    }
+    #room-screen .role-pick {
+      display: block; width: 100%; margin: 10px 0;
+      padding: 18px; font-size: 1.1rem;
+    }
+    #room-screen .hint { font-size: .85rem; opacity: .7; margin-top: 16px; }
+    #room-screen .error { color: #EF5350; font-size: .9rem; margin-top: 8px; min-height: 18px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- ====================== ROOM CODE SCREEN ====================== -->
+  <div id="room-screen">
+    <div class="room-box">
+      <!-- Step 1: Pick role -->
+      <div id="room-step-role">
+        <div style="font-size:3rem; margin-bottom:10px;">&#128294;</div>
+        <h2>Sentence Spotlight — Online</h2>
+        <p class="sub">Unit 9 · Social Issues · Choose your role to begin</p>
+        <button class="role-pick" data-role="teacher">👨‍🏫 TEACHER</button>
+        <button class="role-pick" data-role="student">🎓 STUDENT</button>
+        <div class="hint">Teacher tạo room → share code qua Zoom chat</div>
+      </div>
+
+      <!-- Step 2a: Teacher — show generated code -->
+      <div id="room-step-teacher" style="display:none;">
+        <h2>👨‍🏫 Teacher Room</h2>
+        <p class="sub">Share code này cho học sinh (qua Zoom chat):</p>
+        <div class="code-display" id="teacher-code">------</div>
+        <button id="teacher-enter">Enter Classroom →</button>
+        <button class="ghost" id="teacher-back">← Back</button>
+        <div class="hint">HS mở trang này → chọn Student → nhập code</div>
+      </div>
+
+      <!-- Step 2b: Student — input code -->
+      <div id="room-step-student" style="display:none;">
+        <h2>🎓 Join Class</h2>
+        <p class="sub">Nhập code 6 ký tự từ giáo viên:</p>
+        <input type="text" id="student-code" maxlength="6" placeholder="ABC123" autocomplete="off">
+        <div class="error" id="student-error"></div>
+        <button id="student-enter">Join →</button>
+        <button class="ghost" id="student-back">← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== STUDENT VIEW ====================== -->
+  <div id="student-view" class="hidden">
+    <header class="page-header">
+      <div class="header-content">
+        <h1><span class="header-icon">&#128294;</span> Sentence Spotlight</h1>
+        <p class="subtitle">
+          Unit 9 · Social Issues ·
+          <span id="student-teacher-status" class="status-offline">⚪ Waiting for teacher</span>
+          · Room: <strong id="student-room-badge">—</strong>
+        </p>
+      </div>
+    </header>
+
+    <!-- Waiting for teacher to Start -->
+    <div id="waiting-screen" class="waiting-screen">
+      <div class="waiting-icon">&#9200;</div>
+      <h2>Waiting for teacher...</h2>
+      <p>Your teacher will start the activity soon.</p>
+      <p class="waiting-hint">Make sure you can see the screen and hear the teacher's instructions.</p>
+    </div>
+
+    <!-- Game screen -->
+    <div id="game-screen" style="display:none;">
+      <div class="game-container">
+
+        <div class="progress-bar-wrap">
+          <div class="progress-text">
+            <span id="progress-label">0 / 16 completed</span>
+            <span id="mistakes-label">Mistakes: 0</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div id="game-area">
+          <div id="word-display" class="word-display"></div>
+
+          <div class="prompt-text">Choose the sentence that shows this <span class="prompt-highlight">word's meaning</span>:</div>
+
+          <div id="options" class="options"></div>
+
+          <div class="feedback" id="feedback"></div>
+
+          <!-- Waiting banner (after answer) -->
+          <div id="waiting-banner" class="waiting-banner hidden"></div>
+        </div>
+
+        <!-- Teacher notes panel (under game) -->
+        <div id="teacher-notes-panel">
+          <div class="notes-header">
+            <span class="notes-icon">📝</span>
+            <div class="notes-title-block">
+              <span class="notes-title">TEACHER'S NOTES</span>
+              <span class="notes-subtitle">Helpful words from your teacher</span>
+            </div>
+            <span class="notes-wave">
+              <span class="wave-dot"></span>
+              <span class="wave-dot"></span>
+              <span class="wave-dot"></span>
+            </span>
+          </div>
+          <div id="notes-body">
+            <div id="notes-empty">
+              <span class="notes-empty-icon">👀</span>
+              <span class="notes-empty-text">Watch this space — your teacher will type helpful words here...</span>
+            </div>
+            <div id="notes-current" class="hidden"></div>
+            <div id="notes-recent"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Win screen -->
+    <div id="win-screen" style="display:none;">
+      <div class="win-card">
+        <div class="trophy">&#127775;</div>
+        <h2>All Words Spotted!</h2>
+        <p class="win-sub">You've correctly identified every sentence!</p>
+        <div class="win-stats">
+          <div class="win-stat">
+            <div class="stat-num" id="total-answered">0</div>
+            <div class="stat-label">Total Answers</div>
+          </div>
+          <div class="win-stat">
+            <div class="stat-num" id="total-mistakes">0</div>
+            <div class="stat-label">Mistakes</div>
+          </div>
+        </div>
+        <div id="retry-summary" class="retry-summary"></div>
+        <p style="color:#A09888; font-size:0.9rem; margin-top:0.5rem;">Wait for teacher to restart or continue...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== TEACHER VIEW ====================== -->
+  <div id="teacher-view" class="hidden">
+    <header class="teacher-header">
+      <div>
+        <h1>👨‍🏫 Teacher Control</h1>
+        <p class="teacher-sub">Sentence Spotlight · Online · Room: <strong id="teacher-room-badge">—</strong></p>
+      </div>
+      <div class="connection-state">
+        <span id="teacher-student-status" class="status-offline">⚪ Student offline</span>
+      </div>
+    </header>
+
+    <main class="teacher-main">
+      <section class="tcol">
+        <div class="t-card">
+          <div class="t-card-header">
+            <span class="t-card-label">CURRENT QUESTION</span>
+            <span id="t-progress">—</span>
+          </div>
+          <div class="t-card-body">
+            <div class="t-answer-reveal">
+              <div class="t-reveal-label">TARGET WORD</div>
+              <div id="t-correct-word" class="t-correct-word">—</div>
+              <div id="t-correct-def" class="t-correct-def">Waiting for student to connect, then click Start</div>
+            </div>
+
+            <div class="t-student-state">
+              <div class="t-state-label">STUDENT STATUS</div>
+              <div id="t-student-answer" class="t-student-answer">Waiting...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="t-card t-controls-card">
+          <div class="t-card-label">FLOW CONTROLS</div>
+
+          <button id="t-start-btn" class="t-big-btn t-btn-primary">
+            <span class="btn-icon">▶️</span>
+            <span class="btn-text">Start Activity</span>
+            <span class="btn-sub">Student will see first question</span>
+          </button>
+
+          <button id="t-next-btn" class="t-big-btn t-btn-success" disabled style="display:none;">
+            <span class="btn-icon">⏭️</span>
+            <span class="btn-text">Next Question</span>
+            <span class="btn-sub" id="t-next-sub">Click Start first</span>
+          </button>
+
+          <button id="t-restart-btn" class="t-big-btn t-btn-primary" style="display:none;">
+            <span class="btn-icon">🔄</span>
+            <span class="btn-text">Play Again</span>
+            <span class="btn-sub">Restart from question 1</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="tcol">
+        <div class="t-card">
+          <div class="t-card-label">✏️ WRITE NOTES FOR STUDENT</div>
+          <p class="t-card-desc">Type a helpful word or explanation — it will appear on student's screen.</p>
+
+          <div class="t-annotation-input">
+            <input type="text" id="t-anno-input" placeholder="Type a word or phrase..." maxlength="60">
+            <button id="t-anno-send" class="t-btn-secondary">
+              <span>↗️</span> Send
+            </button>
+          </div>
+
+          <div class="t-annotation-quick">
+            <div class="t-quick-label">QUICK WORDS FROM THIS QUESTION:</div>
+            <div id="t-anno-quick-btns"></div>
+          </div>
+
+          <div class="t-annotation-list">
+            <div class="t-list-header">
+              <span>SENT HISTORY</span>
+              <button id="t-anno-clear" class="t-btn-small">Clear all</button>
+            </div>
+            <ul id="t-anno-history">
+              <li class="empty">No words sent yet</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="t-card">
+          <div class="t-card-label">📊 STATS</div>
+          <div class="t-stats-grid">
+            <div class="t-stat">
+              <div class="t-stat-val" id="t-stat-correct">0</div>
+              <div class="t-stat-label">Correct</div>
+            </div>
+            <div class="t-stat">
+              <div class="t-stat-val" id="t-stat-wrong">0</div>
+              <div class="t-stat-label">Wrong</div>
+            </div>
+            <div class="t-stat">
+              <div class="t-stat-val" id="t-stat-acc">0%</div>
+              <div class="t-stat-label">Accuracy</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ====================== ROOM CODE FLOW ====================== -->
+  <script>
+    (function roomFlow() {
+      const $ = (id) => document.getElementById(id);
+      const stepRole    = $('room-step-role');
+      const stepTeacher = $('room-step-teacher');
+      const stepStudent = $('room-step-student');
+
+      const savedRole = sessionStorage.getItem('ss-role');
+      const savedRoom = sessionStorage.getItem('ss-room');
+      if (savedRole && savedRoom) {
+        document.getElementById('room-screen').style.display = 'none';
+        return;
+      }
+
+      function show(el) {
+        stepRole.style.display    = 'none';
+        stepTeacher.style.display = 'none';
+        stepStudent.style.display = 'none';
+        el.style.display = 'block';
+      }
+
+      function genCode() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no O/I/0/1
+        let code = '';
+        for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+        return code;
+      }
+
+      document.querySelectorAll('.role-pick').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const role = btn.dataset.role;
+          sessionStorage.setItem('ss-role', role);
+          if (role === 'teacher') {
+            const code = genCode();
+            sessionStorage.setItem('ss-room', code);
+            $('teacher-code').textContent = code;
+            show(stepTeacher);
+          } else {
+            show(stepStudent);
+            setTimeout(() => $('student-code').focus(), 100);
+          }
+        });
+      });
+
+      $('teacher-enter').addEventListener('click', () => {
+        location.reload();
+      });
+
+      function studentJoin() {
+        const code = $('student-code').value.trim().toUpperCase();
+        if (!/^[A-Z0-9]{6}$/.test(code)) {
+          $('student-error').textContent = 'Code phải gồm 6 ký tự (chữ/số).';
+          return;
+        }
+        $('student-error').textContent = '';
+        sessionStorage.setItem('ss-room', code);
+        location.reload();
+      }
+      $('student-enter').addEventListener('click', studentJoin);
+      $('student-code').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') studentJoin();
+      });
+
+      $('teacher-back').addEventListener('click', () => {
+        sessionStorage.removeItem('ss-role');
+        sessionStorage.removeItem('ss-room');
+        show(stepRole);
+      });
+      $('student-back').addEventListener('click', () => {
+        sessionStorage.removeItem('ss-role');
+        show(stepRole);
+      });
+    })();
+  </script>
+
+  <!-- ====================== FIREBASE SDK (v8 compat) ====================== -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <!-- ====================== GAME SCRIPTS (only if already in room) ====================== -->
+  <script>
+    (function loadScripts() {
+      const role = sessionStorage.getItem('ss-role');
+      const room = sessionStorage.getItem('ss-room');
+      if (!role || !room) return;
+
+      const v = Date.now();
+      const files = ['data.js', 'js/sync.js', 'js/game.js', 'js/teacher.js', 'js/main.js'];
+      files.forEach(f => {
+        document.write('<script src="' + f + '?v=' + v + '"><\/script>');
+      });
+    })();
+  </script>
+
+</body>
+</html>
